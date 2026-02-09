@@ -49,3 +49,19 @@ impl UltraHonkVerifierContract {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verify_fails_without_vk() {
+        let env = Env::default();
+        let public_inputs = Bytes::from_slice(&env, &[0; 32]);
+        let proof_bytes = Bytes::from_slice(&env, &[0; 32]);
+
+        // Should fail because VK is not set
+        let result = UltraHonkVerifierContract::verify_proof(env, public_inputs, proof_bytes);
+        assert_eq!(result, Err(Error::VkNotSet)); // Or ProofParseError if length check comes first
+    }
+}
