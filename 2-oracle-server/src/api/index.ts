@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 });
 
 server.addMethod('resolve_foreign_call', async (params) => {
-    console.log('📨 Oracle called:', params); // Debug
+    console.log('Oracle called:', params); // Debug
     if (params[0].function !== 'fetchEthPrice') {
         throw new Error(`Unknown oracle: ${params[0].function}`);
     }
@@ -29,7 +29,7 @@ server.addMethod('resolve_foreign_call', async (params) => {
 });
 
 // Handle all POST requests regardless of path
-app.post('/', (req, res) => {
+app.post(/(.*)/, (req, res) => {
     const jsonRPCRequest = req.body;
     Promise.resolve(server.receive(jsonRPCRequest)).then((jsonRPCResponse) => {
         if (jsonRPCResponse) {
@@ -50,9 +50,9 @@ app.get('/test', (req, res) => {
 if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     const port = process.env.PORT || 5555;
     app.listen(Number(port), '0.0.0.0', () => {
-        console.log(`🧿 Oracle Server running!`);
-        console.log(`👉 Listening on http://localhost:${port}/ (Windows)`);
-        console.log(`👉 Listening on http://127.0.0.1:${port}/ (WSL/Linux compat)`);
+        console.log(`Oracle Server running!`);
+        console.log(`Listening on http://localhost:${port}/ (Windows)`);
+        console.log(`Listening on http://127.0.0.1:${port}/ (WSL/Linux compat)`);
     });
 }
 
