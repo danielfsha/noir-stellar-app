@@ -5,10 +5,18 @@ import { JSONRPCServer } from 'json-rpc-2.0';
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+// Parse all content types as JSON to ensure we catch Nargo's requests
+app.use(bodyParser.json({ type: '*/*' }));
 
 const server = new JSONRPCServer();
 const ETH_PRICE = "2850"; 
+
+// Log every request to see path and body
+app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.path}`);
+    console.log('Body:', JSON.stringify(req.body).substring(0, 500));
+    next();
+});
 
 server.addMethod('resolve_foreign_call', async (params) => {
     console.log('📨 Oracle called:', params); // Debug
@@ -19,11 +27,18 @@ server.addMethod('resolve_foreign_call', async (params) => {
     return { values: [ETH_PRICE] }; 
 });
 
-app.post('/', (req, res) => {  // Nargo expects ROOT endpoint
-    console.log('Request:', req.body); // Debug
-    server.receive(req.body).then((jsonRPCResponse) => {
-        if (jsonRPCResponse) res.json(jsonRPCResponse);
-        else res.status(204).end();
+// Handle all POST requests regardless of path
+app.post('*', (req, res) => {
+    const jsonRPCRequest = req.body;
+    server.receive(jsonRPCRequest).then((jsonRPCResponse) => {
+        if (jsonRPCResponse) {
+            res.json(jsonRPCResponse);
+        } else {
+            res.sendStatus(204);
+        }
+    }).catch(e => {
+        console.error('JSON-RPC Error:', e);
+        res.status(500).send(e.message);
     });
 });
 
