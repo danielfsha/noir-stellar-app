@@ -6,10 +6,14 @@ unconstrained fn eth_price() -> Field {
 }
 
 fn main() -> pub Field {
-    let price = eth_price();
-    assert(price > 0 && price < 1000000);  // Constrain oracle
+    // Safety: Oracle calls are external and unconstrained
+    let price = unsafe { eth_price() };
+    let price_u64 = price as u64;
+    assert((price_u64 > 0) & (price_u64 < 1000000));  // Constrain oracle
     price
 }
 
 #[test]
-fn test() { main(); }
+fn test() {
+    let _ = main();
+}
