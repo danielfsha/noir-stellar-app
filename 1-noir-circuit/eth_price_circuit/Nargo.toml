@@ -1,0 +1,6 @@
+[package]
+name = "eth_price_circuit"
+type = "bin"
+authors = [""]
+
+[dependencies]
