@@ -14,6 +14,7 @@ pub enum Error {
     ProofParseError = 2,
     VerificationFailed = 3,
     VkNotSet = 4,
+    AlreadyInitialized = 5,
 }
 
 #[contractimpl]
@@ -22,8 +23,11 @@ impl UltraHonkVerifierContract {
         symbol_short!("vk")
     }
 
-    /// Initialize the on-chain VK once at deploy time.
-    pub fn __constructor(env: Env, vk_bytes: Bytes) -> Result<(), Error> {
+    /// Initialize the on-chain VK. Check if already initialized.
+    pub fn initialize(env: Env, vk_bytes: Bytes) -> Result<(), Error> {
+        if env.storage().instance().has(&Self::key_vk()) {
+            return Err(Error::AlreadyInitialized);
+        }
         env.storage().instance().set(&Self::key_vk(), &vk_bytes);
         Ok(())
     }
@@ -58,11 +62,14 @@ mod tests {
     #[test]
     fn test_verify_fails_without_vk() {
         let env = Env::default();
+        let contract_id = env.register_contract(None, UltraHonkVerifierContract);
+        let client = UltraHonkVerifierContractClient::new(&env, &contract_id);
+
         let public_inputs = Bytes::from_slice(&env, &[0; 32]);
         let proof_bytes = Bytes::from_slice(&env, &[0; 32]);
 
         // Should fail because VK is not set
-        let result = UltraHonkVerifierContract::verify_proof(env, public_inputs, proof_bytes);
-        assert_eq!(result, Err(Error::VkNotSet)); // Or ProofParseError if length check comes first
+        let result = client.try_verify_proof(&public_inputs, &proof_bytes);
+        assert_eq!(result, Err(Ok(Error::VkNotSet)));
     }
 }
