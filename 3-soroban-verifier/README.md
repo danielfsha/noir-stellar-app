@@ -7,6 +7,11 @@ This project contains a Soroban Smart Contract that can verify Zero-Knowledge Pr
 - **Rust**: Stable toolchain.
 - **Stellar CLI**: `stellar` command line tool.
 - **Wasm Target**: `rustup target add wasm32v1-none`
+- **Linux/WSL Dependencies**: You must install a C compiler (like `gcc`) for dependencies to build.
+  ```bash
+  sudo apt-get update && sudo apt-get install -y build-essential
+  ```
+  *If you see `linker 'cc' not found`, you are missing this step.*
 
 ## 🛠️ Build
 
