@@ -30,15 +30,16 @@ impl UltraHonkVerifierContract {
 
     /// Verify an UltraHonk proof using the stored VK.
     pub fn verify_proof(env: Env, public_inputs: Bytes, proof_bytes: Bytes) -> Result<(), Error> {
-        if proof_bytes.len() as usize != PROOF_BYTES {
-            return Err(Error::ProofParseError);
-        }
-
         let vk_bytes: Bytes = env
             .storage()
             .instance()
             .get(&Self::key_vk())
             .ok_or(Error::VkNotSet)?;
+
+        if proof_bytes.len() as usize != PROOF_BYTES {
+            return Err(Error::ProofParseError);
+        }
+
         // Deserialize verification key bytes
         let verifier = UltraHonkVerifier::new(&env, &vk_bytes).map_err(|_| Error::VkParseError)?;
 
