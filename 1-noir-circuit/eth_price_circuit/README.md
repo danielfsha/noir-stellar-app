@@ -59,3 +59,27 @@ If you try to mock the price by adding a body to the oracle function:
 unconstrained fn get_price() -> Field { 2850 } // Error!
 ```
 You must remove the `#[oracle]` attribute if you provide a simplified implementation for local testing without a resolver.
+
+To successfully run `nargo execute` (which doesn't support the oracle resolver), you can temporarily modify `src/main.nr` to compare against a mock value:
+
+```noir
+// #[oracle(fetchEthPrice)]
+unconstrained fn get_price() -> Field { 2850 }
+
+unconstrained fn eth_price() -> Field {
+    get_price()
+}
+
+fn main() -> pub Field {
+    // Safety: Oracle calls are external and unconstrained
+    let price = unsafe { eth_price() };
+    let price_u64 = price as u64;
+    assert((price_u64 > 0) & (price_u64 < 1000000));  // Constrain oracle
+    price
+}
+
+#[test]
+fn test() {
+    let _ = main();
+}
+```
