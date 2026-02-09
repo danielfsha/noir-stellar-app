@@ -24,7 +24,13 @@ Because this circuit relies on an external oracle (`#[oracle(fetchEthPrice)]`), 
 **The recommended way to run this circuit is using `nargo test` with a resolver.**
 
 ### Option 1: Live Oracle (Easiest)
-Use the deployed Netlify server as the oracle resolver:
+You can use the included helper script to run the test against the live oracle:
+
+```bash
+./test.sh
+```
+
+Or run the command manually:
 
 ```bash
 nargo test --oracle-resolver https://starlit-bubblegum-c0e20b.netlify.app
