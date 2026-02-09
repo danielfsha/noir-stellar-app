@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn test_verify_fails_without_vk() {
         let env = Env::default();
-        let contract_id = env.register_contract(None, UltraHonkVerifierContract);
+        let contract_id = env.register(UltraHonkVerifierContract, ());
         let client = UltraHonkVerifierContractClient::new(&env, &contract_id);
 
         let public_inputs = Bytes::from_slice(&env, &[0; 32]);
