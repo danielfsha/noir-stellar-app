@@ -14,3 +14,9 @@ use WSL it doesnt work on powershell
 cd eth_price_circuit
 nargo check
 ```
+
+
+3. Work with the oracle using command line
+```bash 
+nargo test --oracle-resolver http://localhost:5555
+```
