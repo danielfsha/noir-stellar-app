@@ -27,6 +27,16 @@ sequenceDiagram
     Stellar-->>User: Transaction Success/Fail
 ```
 
+## Prerequisites
+
+*   **Rust & Cargo**: For Soroban development.
+*   **Noir (Nargo) & Barretenberg**: For circuit compilation and proving.
+*   **Node.js**: For the Oracle server.
+*   **WSL (Windows) Users**: You must install build tools for the Soroban verifier dependencies (specifically for the C linker).
+    ```bash
+    sudo apt-get update && sudo apt-get install -y build-essential
+    ```
+
 ## Project Components
 
 ### 1-noir-circuit/ (Client)
