@@ -23,6 +23,7 @@
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "json-rpc-2.0": "^1.7.1"
+    "json-rpc-2.0": "^1.7.1",
+    "serverless-http": "^4.0.0"
   }
 }
