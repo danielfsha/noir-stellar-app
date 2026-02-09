@@ -14,7 +14,8 @@ const ETH_PRICE = "2850";
 // Log every request to see path and body
 app.use((req, res, next) => {
     console.log(`[${req.method}] ${req.path}`);
-    console.log('Body:', JSON.stringify(req.body).substring(0, 500));
+    const bodyStr = req.body ? JSON.stringify(req.body) : '';
+    console.log('Body:', bodyStr.substring(0, 500));
     next();
 });
 
@@ -28,9 +29,9 @@ server.addMethod('resolve_foreign_call', async (params) => {
 });
 
 // Handle all POST requests regardless of path
-app.post('*', (req, res) => {
+app.post('/', (req, res) => {
     const jsonRPCRequest = req.body;
-    server.receive(jsonRPCRequest).then((jsonRPCResponse) => {
+    Promise.resolve(server.receive(jsonRPCRequest)).then((jsonRPCResponse) => {
         if (jsonRPCResponse) {
             res.json(jsonRPCResponse);
         } else {
