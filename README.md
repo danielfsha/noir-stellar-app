@@ -90,6 +90,8 @@ cd 1-noir-circuit/eth_price_circuit
 ### Step 3: Build Soroban Verifier
 Compile the contract to WASM.
 
+**Note for WSL/Linux Users**: ensure `build-essential` is installed (`sudo apt-get install build-essential`) as a linker is required.
+
 ```bash
 cd 3-soroban-verifier
 cargo test  # Run unit tests (downloads dependencies first)
