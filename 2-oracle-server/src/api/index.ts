@@ -31,7 +31,7 @@ app.get('/test', (req, res) => {
     res.send('🧿 Oracle Server is running. Send JSON-RPC requests to this endpoint.');
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     const port = process.env.PORT || 5555;
     app.listen(Number(port), '0.0.0.0', () => {
         console.log(`🧿 Oracle Server running!`);
