@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["contracts/*"]
+members = ["contracts/guess-game"]
+exclude = ["contracts/zk-verifier"]
 
 [workspace.dependencies]
 soroban-sdk = "25.0.0"

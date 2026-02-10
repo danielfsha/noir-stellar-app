@@ -92,32 +92,37 @@ This project requires two smart contracts to be deployed:
 
 ### 1. Build and Deploy the Verifier
 
-We use the standard `ultrahonk_soroban_contract` for verifying Noir proofs.
+We use the standard `ultrahonk_soroban_contract` located in `contracts/contracts/zk-verifier` for verifying Noir proofs.
 
 ```bash
 # 1. Build the Verifier
-cd ../3-soroban-verifier
+cd ../guess-game/contracts/contracts/zk-verifier
 stellar contract build
 
 # 2. Deploy the Verifier
-# Save the returned verify_contract_id
+# Note: You must provide the Verification Key (VK) bytes to the constructor.
+# Get the VK from your Noir compilation target (circuit.json).
+# Example (placeholder bytes):
 stellar contract deploy \
-  --wasm target/wasm32v1-none/release/ultrahonk_soroban_contract.wasm \
+  --wasm ../../../target/wasm32v1-none/release/ultrahonk_soroban_contract.wasm \
   --source sban \
-  --network testnet
+  --network testnet \
+  -- \
+  --vk_bytes <YOUR_VK_BYTES_IN_HEX>
 ```
 
 ### 2. Build and Deploy the Game Contract
 
 ```bash
 # 1. Build the Game
-cd ../guess-game/contracts
+cd ../guess-game
+# (Or from the contracts folder)
 stellar contract build
 
 # 2. Deploy the Game
 # Save the returned game_contract_id
 stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/guess_game.wasm \
+  --wasm contracts/target/wasm32-unknown-unknown/release/guess_game.wasm \
   --source sban \
   --network testnet
 ```
