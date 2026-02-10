@@ -118,23 +118,27 @@ stellar keys generate alice --network testnet --fund
     ```
 
 2.  **Deploy the Verifier (from `3-soroban-verifier`)**:
-    (Assuming you have built the verifier separately)
+    Build the verifier from the `3-soroban-verifier` directory:
+    ```bash
+    rustup target add wasm32v1-none
+    cd ../3-soroban-verifier
+    stellar contract build --optimize
+    cd ../guess-game
+    ```
+
+    Then deploy it:
     ```bash
     stellar contract deploy \
-      --wasm ../3-soroban-verifier/target/wasm32-unknown-unknown/release/soroban_zk_verifier.wasm \
+      --wasm ../3-soroban-verifier/target/wasm32v1-none/release/ultrahonk_soroban_contract.wasm \
       --source-account alice \
       --network testnet \
-      --alias verifier
+      --alias verifier \
+      -- \
+      --vk_bytes <YOUR_VK_BYTES_HEX>
     ```
+    *Note: The new verifier requires the Verification Key to be passed as a constructor argument during deployment (`-- --vk_bytes ...`).*
 
-3.  **Initialize the Verifier**:
-    The verifier needs the Verification Key from your Noir circuit.
-    ```bash
-    # (Simplified) You would call the initialize function with your VK bytes here
-    stellar contract invoke --id verifier --network testnet --source-account alice -- initialize --vk_bytes <YOUR_VK_BYTES_HEX>
-    ```
-
-4.  **Deploy the Game Contract**:
+3.  **Deploy the Game Contract**:
     ```bash
     stellar contract deploy \
       --wasm target/wasm32v1-none/release/guess_game.wasm \
