@@ -100,15 +100,89 @@ cargo test --manifest-path contracts/Cargo.toml
 
 ### 2. Deployment (Production)
 
-To deploy the full system:
+To deploy the full system, you will need to setup your Stellar CLI and fund an account on Testnet.
 
-1.  **Deploy the Verifier**: Deploy the logic from `3-soroban-verifier` (or a similar UltraHonk verifier).
-    *   Initialize it with the **Verification Key** from the `nargo compile` step.
-2.  **Deploy the Game**: Deploy the `guess-game` contract.
-3.  **Link**: Call `initialize(verifier_address)` on the Game contract to point it to the Verifier.
+#### Configure Source Account
 
-### 3. Playing the Game
+Generate a keypair for your deploying account (e.g., `alice`) and fund it using Friendbot:
 
-1.  **Commit**: Player generates a random `salt` and their `guess`. They compute `Poseidon(guess, salt)` and submit this commitment to the `commit_guess` function.
-2.  **Generate Proof**: Player uses `nargo prove` to generate a proof that they know the preimage of the commitment and that the guess matches the secret target.
-3.  **Claim Win**: Player calls `claim_win` with the generated proof. The contract verifies it and grants the win.
+```bash
+stellar keys generate alice --network testnet --fund
+```
+
+#### Deploy the Contracts
+
+1.  **Build the Contracts**:
+    ```bash
+    stellar contract build
+    ```
+
+2.  **Deploy the Verifier (from `3-soroban-verifier`)**:
+    (Assuming you have built the verifier separately)
+    ```bash
+    stellar contract deploy \
+      --wasm ../3-soroban-verifier/target/wasm32-unknown-unknown/release/soroban_zk_verifier.wasm \
+      --source-account alice \
+      --network testnet \
+      --alias verifier
+    ```
+
+3.  **Initialize the Verifier**:
+    The verifier needs the Verification Key from your Noir circuit.
+    ```bash
+    # (Simplified) You would call the initialize function with your VK bytes here
+    stellar contract invoke --id verifier --network testnet --source-account alice -- initialize --vk_bytes <YOUR_VK_BYTES_HEX>
+    ```
+
+4.  **Deploy the Game Contract**:
+    ```bash
+    stellar contract deploy \
+      --wasm target/wasm32v1-none/release/guess_game.wasm \
+      --source-account alice \
+      --network testnet \
+      --alias guess_game
+    ```
+
+5.  **Link the Contracts**:
+    Tell the Game Contract where to find the Verifier.
+    ```bash
+    stellar contract invoke \
+      --id guess_game \
+      --source-account alice \
+      --network testnet \
+      -- \
+      initialize \
+      --verifier <VERIFIER_CONTRACT_ID>
+    ```
+
+### 3. Playing the Game via CLI
+
+1.  **Commit Phase**:
+    Player sends their commitment hash.
+    ```bash
+    stellar contract invoke \
+      --id guess_game \
+      --source-account alice \
+      --network testnet \
+      -- \
+      commit_guess \
+      --player alice \
+      --hash <YOUR_COMMITMENT_HASH_HEX>
+    ```
+
+2.  **Generate Proof**:
+    Use `nargo prove` (in WSL) to generate your proof string.
+
+3.  **Claim Phase**:
+    Submit the proof to win.
+    ```bash
+    stellar contract invoke \
+      --id guess_game \
+      --source-account alice \
+      --network testnet \
+      -- \
+      claim_win \
+      --player alice \
+      --proof <YOUR_PROOF_BYTES_HEX>
+    ```
+
