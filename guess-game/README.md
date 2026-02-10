@@ -90,10 +90,9 @@ The Game Contract is designed to work with a Zero-Knowledge Verifier contract.
 
 ### 1. Build & Test Contracts
 
-The `guess-game` contract has been updated to include the logic.
-It validates proofs by calling an external Verifier contract.
+The `guess-game` contract now integrates **Posiedon Hashing** (via `soroban-poseidon`) to generate fair key-targets on-chain.
 
-To run the integration tests (which use a Mock Verifier):
+To run the integration tests:
 
 ```bash
 cargo test --manifest-path contracts/Cargo.toml
