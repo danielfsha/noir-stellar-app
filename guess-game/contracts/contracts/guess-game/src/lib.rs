@@ -1,9 +1,10 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, crypto::BnScalar, vec, Address, Bytes, BytesN, Env, Symbol,
+    contract, contractimpl, contracttype, crypto::BnScalar, vec, Address, Bytes, BytesN, Env, 
     U256, xdr::ToXdr,
 };
 use soroban_poseidon::poseidon2_hash;
+use ultrahonk_verifier::UltraHonkVerifier;
 
 #[contract]
 pub struct GuessGame;
@@ -12,13 +13,13 @@ pub struct GuessGame;
 pub enum DataKey {
     Commitment(Address),
     Target(Address), // Store the target for the player
-    Verifier,
+    VerificationKey,
 }
 
 #[contractimpl]
 impl GuessGame {
-    pub fn initialize(env: Env, verifier: Address) {
-        env.storage().instance().set(&DataKey::Verifier, &verifier);
+    pub fn initialize(env: Env, vk: Bytes) {
+        env.storage().instance().set(&DataKey::VerificationKey, &vk);
     }
 
     /// Players "Commit" to a guess. 
@@ -81,14 +82,12 @@ impl GuessGame {
         target_bytes[31] = target as u8;
         public_inputs.append(&Bytes::from_slice(&env, &target_bytes));
 
-        // 4. Call External Verifier Contract
-        let verifier_address: Address = env.storage().instance().get(&DataKey::Verifier).unwrap();
+        // 4. Verify Proof Internal
+        let vk_bytes: Bytes = env.storage().instance().get(&DataKey::VerificationKey).unwrap();
         
-        let _: () = env.invoke_contract(
-            &verifier_address,
-            &Symbol::new(&env, "verify_proof"),
-            vec![&env, public_inputs.to_val(), proof.to_val()],
-        );
+        let verifier = UltraHonkVerifier::new(&env, &vk_bytes).unwrap_or_else(|_| panic!("Failed to parse VK"));
+        
+        verifier.verify(&proof, &public_inputs).unwrap_or_else(|_| panic!("Proof verification failed"));
         
         // If successful, maybe reward the player?
         // env.events().publish(...)

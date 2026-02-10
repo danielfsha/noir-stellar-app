@@ -1,10 +1,9 @@
 [workspace]
 resolver = "2"
-members = ["contracts/guess-game"]
-exclude = ["contracts/zk-verifier"]
+members = ["contracts/*"]
 
 [workspace.dependencies]
-soroban-sdk = "25.0.0"
+soroban-sdk = "25.1.0"
 soroban-poseidon = "25.0.0"
 
 [profile.release]
@@ -17,7 +16,9 @@ panic = "abort"
 codegen-units = 1
 lto = true
 
-# For more information about this profile see https://soroban.stellar.org/docs/basic-tutorials/logging#cargotoml-profile
 [profile.release-with-logs]
 inherits = "release"
 debug-assertions = true
+
+[patch."https://github.com/stellar/rs-soroban-sdk.git"]
+soroban-sdk = { version = "=25.1.0" }

@@ -9,8 +9,9 @@ crate-type = ["lib", "cdylib"]
 doctest = false
 
 [dependencies]
-soroban-sdk = { workspace = true }
+soroban-sdk = { workspace = true, features = ["alloc"] }
 soroban-poseidon = { workspace = true }
+ultrahonk_verifier = { package = "ultrahonk_rust_verifier", git = "https://github.com/yugocabrio/ultrahonk-rust-verifier.git", rev = "2a73c4ba", default-features = false }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
