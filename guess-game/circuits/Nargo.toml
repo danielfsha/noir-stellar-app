@@ -1,5 +1,5 @@
 [package]
-name = "circuits"
+name = "guess_game_circuit"
 type = "bin"
 authors = [""]
 
