@@ -84,11 +84,60 @@ nargo compile
 
 This will generate a `target/circuits.json` file. You will need the **Verification Key** from this step for the smart contract.
 
-## Contract Integration
+## Deployment & Integration
 
-The Game Contract is designed to work with a Zero-Knowledge Verifier contract.
+This project requires two smart contracts to be deployed: 
+1. The **Verifier Contract** (Standard UltraHonk Verifier)
+2. The **Game Contract** (Your custom logic)
 
-### 1. Build & Test Contracts
+### 1. Build and Deploy the Verifier
+
+We use the standard `ultrahonk_soroban_contract` for verifying Noir proofs.
+
+```bash
+# 1. Build the Verifier
+cd ../3-soroban-verifier
+stellar contract build
+
+# 2. Deploy the Verifier
+# Save the returned verify_contract_id
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/ultrahonk_soroban_contract.wasm \
+  --source sban \
+  --network testnet
+```
+
+### 2. Build and Deploy the Game Contract
+
+```bash
+# 1. Build the Game
+cd ../guess-game/contracts
+stellar contract build
+
+# 2. Deploy the Game
+# Save the returned game_contract_id
+stellar contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/guess_game.wasm \
+  --source sban \
+  --network testnet
+```
+
+### 3. Initialize the Game
+
+Connect the Game contract to the Verifier contract.
+
+```bash
+# Initialize with the Verifier Address from Step 1
+stellar contract invoke \
+  --id <game_contract_id> \
+  --source sban \
+  --network testnet \
+  -- \
+  initialize \
+  --verifier <verify_contract_id>
+```
+
+### 4. Running Tests
 
 The `guess-game` contract now integrates **Posiedon Hashing** (via `soroban-poseidon`) to generate fair key-targets on-chain.
 
