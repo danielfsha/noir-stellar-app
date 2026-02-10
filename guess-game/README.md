@@ -255,7 +255,7 @@ stellar contract build
 
 ## Active Testnet Deployment
 
-**Contract Address (Testnet):** `CBA4NR7GUSW36EKS4Y4XSWEI2LSLBBLJKCI3RZSYYQPKZFVCNVNQTSFD` (Feb 10, 2026)
+**Contract Address (Testnet):** [CBA4NR7GUSW36EKS4Y4XSWEI2LSLBBLJKCI3RZSYYQPKZFVCNVNQTSFD](https://stellar.expert/explorer/testnet/contract/CBA4NR7GUSW36EKS4Y4XSWEI2LSLBBLJKCI3RZSYYQPKZFVCNVNQTSFD) (Feb 10, 2026)
 
 ### Important Considerations
 
