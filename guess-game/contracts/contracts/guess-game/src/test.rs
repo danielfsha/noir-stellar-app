@@ -48,10 +48,11 @@ fn test_game_flow() {
     game_client.commit_guess(&player, &commitment);
 
     // 6. Claim Phase
-    // Player reveals target (42) and provides proof
-    let target: u32 = 42;
-    let proof = Bytes::from_slice(&env, &[0xaa; 32]); // Dummy proof
+    // The target is now generated randomly by the contract.
+    // In a real test, we would need to know the generated target to produce a valid proof.
+    // For this Mock test, we just pass dummy proof bytes.
+    let proof = Bytes::from_slice(&env, &[0xaa; 32]); 
 
-    // This should succeed because MockVerifier always returns success
-    game_client.claim_win(&player, &proof, &target);
+    // `claim_win` no longer takes `target` as input, it retrieves it from storage.
+    game_client.claim_win(&player, &proof);
 }
