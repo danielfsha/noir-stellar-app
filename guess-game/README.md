@@ -124,6 +124,46 @@ stellar contract invoke \
 
 ## Gameplay
 
+### Game Flow
+
+```mermaid
+sequenceDiagram
+    actor Player
+    participant Contract as Game Contract
+    participant Verifier as UltraHonk Library
+    
+    Note over Player, Contract: Initialization
+    Deployer->>Contract: initialize(vk_bytes)
+    Contract->>Contract: Store Verification Key
+    
+    Note over Player, Contract: Commit Phase
+    Player->>Player: Select guess & salt
+    Player->>Player: commitment = Poseidon(guess, salt)
+    Player->>Contract: commit_guess(player, commitment)
+    Contract->>Contract: Store commitment
+    Contract->>Contract: Generate random target (0-100)
+    Contract->>Contract: Store target
+    
+    Note over Player, Contract: Reveal/Claim Phase
+    Player->>Contract: Read generated target
+    alt Guess matches Target
+        Player->>Player: Generate ZK Proof(guess, salt, target, commitment)
+        Player->>Contract: claim_win(proof)
+        Contract->>Contract: Retrieve stored commitment
+        Contract->>Contract: Retrieve stored target
+        Contract->>Contract: Construct public_inputs [commitment, target]
+        Contract->>Verifier: verify(proof, public_inputs, vk)
+        Verifier-->>Contract: true/false
+        alt Valid Proof
+            Contract-->>Player: Win! (Transaction Succeeds)
+        else Invalid Proof
+            Contract-->>Player: Fail (Transaction Panics)
+        end
+    else Guess mismatch
+        Player->>Player: Cannot generate valid proof
+    end
+```
+
 ### 1. Generate Proof
 
 First, generate your proof using Nargo. You will need your secret `guess`, `salt`, and the public `target`.
@@ -186,4 +226,30 @@ cargo test
       --player alice \
       --proof <YOUR_PROOF_BYTES_HEX>
     ```
+
+## Ultrahonk Verifier Integration
+
+We have updated the contract to use the `ultrahonk_rust_verifier` as an embedded library rather than an external contract call. This simplifies deployment and verification.
+
+### Key Changes
+
+1.  **Dependency Configuration**:
+    *   Added `ultrahonk_rust_verifier` as a git dependency.
+    *   **Crucial Fix**: Applied a `[patch.crates-io]` in `Cargo.toml` to force the use of `soroban-sdk` version `25.1.0`. This aligns the version used by our local workspace with the version required by the `ultrahonk` git dependency, resolving "dependency hell" compilation errors.
+
+2.  **Contract Logic (`lib.rs`)**:
+    *   The `initialize` function now accepts the **Verification Key (VK)** as `Bytes` instead of an `Address`.
+    *   The `claim_win` function now uses `ultrahonk_verifier::UltraHonkVerifier` directly to verify proofs in-process.
+
+3.  **Testing (`test.rs`)**:
+    *   Tests were updated to inject a dummy VK (Bytes) instead of deploying a mock verifier contract.
+    *   New test cases verify that the contract handles initialization and valid/invalid proof structures correctly using the library.
+
+### How to Build & Test
+
+```bash
+# location: guess-game/contracts
+cargo test --workspace
+stellar contract build
+```
 
