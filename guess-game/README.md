@@ -38,5 +38,5 @@ This will generate a noir project with the following folder strucuture
 ├── circuits
 │   ├─ src
 │   │   └──main.nr
-│   └── Cargo.toml
+│   └── Nargo.toml
 ```
